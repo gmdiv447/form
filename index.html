@@ -308,7 +308,7 @@ document.getElementById('requestAnother').addEventListener('click', ()=>{
   setTimeout(()=>document.getElementById('amount').focus(),120);
 
   msg.className='msg';
-  msg.textContent = 'Reusing previous details — please enter begging amount only.';
+  msg.textContent = 'Reusing previous details — please enter refund amount only.';
   setTimeout(()=>{ if (msg.className==='msg') msg.textContent=''; }, 4000);
 });
 

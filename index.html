@@ -37,6 +37,23 @@
   object-fit: contain;
   z-index: 10;          /* keep it above the form */
 }
+/* Spinner (loading circle) */
+.loader {
+  border: 4px solid #f3f3f3;       /* Light gray ring */
+  border-top: 4px solid #2563eb;   /* Blue arc */
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 
   </style>
 </head>
@@ -108,9 +125,12 @@
       </div>
 
       <div id="formMsg" class="msg" aria-live="polite"></div>
-      <div id="processing" style="display:none; margin-top:12px; padding:12px; border-radius:8px; background:#fff7ed; color:#92400e; text-align:center; font-weight:600;">
-  Processing — kindly wait...
+      <div id="processing" 
+     style="display:none; margin-top:12px; padding:12px; border-radius:8px; background:#fff7ed; color:#92400e; text-align:center; font-weight:600;">
+  <div class="loader"></div>
+  <span>Processing — kindly wait...</span>
 </div>
+
 
     </form>
 

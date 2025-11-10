@@ -211,7 +211,7 @@
     const result = await postFormData(fd);
 
     submitBtn.disabled = false;
-    submitBtn.textContent = 'Submit 🎉';
+    submitBtn.textContent = 'Submit';
 
     if (result.ok && result.json && result.json.success){
       // Save last non-amount fields so we can reuse later
